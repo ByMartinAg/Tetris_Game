@@ -98,7 +98,7 @@ public class MenuPanel extends JPanel {
         gbc.insets = new Insets(6, 8, 6, 8);
 
         // ── Subtítulo ─────────────────────────────────────────────────────
-        JLabel sub = neonLabel("▶  JAVA EDITION  ◀", C_NEON_C, F_LABEL);
+        JLabel sub = neonLabel("Retro Arcade", C_NEON_C, F_LABEL);
         sub.setHorizontalAlignment(SwingConstants.CENTER);
         gbc.gridy = row++;
         center.add(sub, gbc);
@@ -150,20 +150,20 @@ public class MenuPanel extends JPanel {
         center.add(retroSeparator(), gbc);
 
         // ── Botón INICIAR ─────────────────────────────────────────────────
-        JButton startBtn = retroButton("▶  INICIAR JUEGO", C_NEON_G);
+        JButton startBtn = retroButton("INICIAR JUEGO", C_NEON_G);
         startBtn.addActionListener(e -> startGame());
         gbc.gridy  = row++;
         gbc.insets = new Insets(4, 8, 3, 8);
         center.add(startBtn, gbc);
 
         // ── Botón RANKING ─────────────────────────────────────────────────
-        JButton rankBtn = retroButton("★  RANKING", C_NEON_C);
+        JButton rankBtn = retroButton("RANKING", C_NEON_C);
         rankBtn.addActionListener(e -> showRanking());
         gbc.gridy = row++;
         center.add(rankBtn, gbc);
 
         // ── Botón SALIR ───────────────────────────────────────────────────
-        JButton exitBtn = retroButton("✕  SALIR", C_NEON_M);
+        JButton exitBtn = retroButton("SALIR", C_NEON_M);
         exitBtn.addActionListener(e -> System.exit(0));
         gbc.gridy  = row++;
         gbc.insets = new Insets(3, 8, 8, 8);
@@ -230,7 +230,7 @@ public class MenuPanel extends JPanel {
         ta.setEditable(false);
         ta.setBackground(C_BG);
         ta.setForeground(C_NEON_Y);
-        JOptionPane.showMessageDialog(this, ta, "▶ TOP " + Constants.TOP_SCORES + " ◀",
+        JOptionPane.showMessageDialog(this, ta, " TOP " + Constants.TOP_SCORES + " - ",
                 JOptionPane.PLAIN_MESSAGE);
     }
 

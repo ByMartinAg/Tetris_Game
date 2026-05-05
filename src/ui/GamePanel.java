@@ -1,6 +1,5 @@
 package ui;
 
-
 import audio.SoundManager;
 import gameConfig.Theme;
 import gameConfig.ThemeManager;
@@ -18,41 +17,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-/**
- * Panel principal de juego.
- *
- * Responsabilidades:
- *  - Dibujar tablero, pieza actual, ghost piece, fondo del tema.
- *  - Mostrar overlay de pausa.
- *  - Arrancar GameLoop y Game.
- *  - Delegar input a InputHandler.
- *  - Mostrar GameOverPanel cuando el Game lo indique.
- *
- * NO contiene lógica de movimiento ni de puntuación.
- */
 public class GamePanel extends JPanel {
 
-    // ── Colores base ─────────────────────────────────────────────────────
     private static final Color C_PAUSE_OVL = new Color(0, 0, 0, 170);
     private static final Font  F_PAUSE     = new Font("Courier New", Font.BOLD, 28);
     private static final Font  F_PAUSE_SUB = new Font("Courier New", Font.PLAIN, 13);
 
-    // ── Componentes ───────────────────────────────────────────────────────
     private final GameState    state;
     private final Game         game;
-    private final GameLoop     gameLoop;
+    private GameLoop     gameLoop;
     private final SidebarPanel sidebar;
+    private final JFrame       frame;
+    private final SoundManager sound;
+    private final ScoreManager scoreManager;
 
     public GamePanel(String playerName, Difficulty difficulty, Theme theme,
                      JFrame frame, SoundManager sound, ScoreManager scoreManager) {
 
+        this.frame        = frame;
+        this.sound        = sound;
+        this.scoreManager = scoreManager;
+
         state = new GameState(playerName, difficulty, theme);
+        game  = new Game(state, sound, scoreManager, () -> showGameOver());
 
-        game  = new Game(state, sound, scoreManager, () -> showGameOver(frame, sound, scoreManager));
+        sidebar = new SidebarPanel(state, () -> {
+            if (gameLoop != null) gameLoop.stop();
+            showMenu();
+        });
 
-        sidebar  = new SidebarPanel(state);
-
-        // Layout: tablero a la izquierda, sidebar a la derecha
         setLayout(new BorderLayout());
         setBackground(Color.BLACK);
 
@@ -61,15 +54,12 @@ public class GamePanel extends JPanel {
         add(boardWrapper, BorderLayout.CENTER);
         add(sidebar,      BorderLayout.EAST);
 
-        // Input
         InputHandler input = new InputHandler(game, state);
         addKeyListener(input);
         setFocusable(true);
 
-        // Música del tema
         sound.playBackgroundMusic(theme.getMusicFile(), true);
 
-        // GameLoop: usa repaint() de este panel como callback de render
         gameLoop = new GameLoop(state, game, () ->
                 SwingUtilities.invokeLater(this::repaint)
         );
@@ -78,16 +68,30 @@ public class GamePanel extends JPanel {
 
     // ── Game Over ─────────────────────────────────────────────────────────
 
-    private void showGameOver(JFrame frame, SoundManager sound, ScoreManager sm) {
+    private void showGameOver() {
         gameLoop.stop();
-        frame.getContentPane().removeAll();
-        frame.add(new GameOverPanel(
-                state.getPlayerName(), state.getScore(), frame, sound, sm));
-        frame.revalidate();
-        frame.repaint();
+        sound.stopBackgroundMusic();
+        SwingUtilities.invokeLater(() -> {
+            frame.getContentPane().removeAll();
+            frame.add(new GameOverPanel(state.getPlayerName(), state.getScore(), frame, sound, scoreManager));
+            frame.revalidate();
+            frame.repaint();
+        });
     }
 
-    // ── Canvas del tablero (subpanel que dibuja todo el juego) ────────────
+    // ── Menú ──────────────────────────────────────────────────────────────
+
+    private void showMenu() {
+        sound.stopBackgroundMusic();
+        SwingUtilities.invokeLater(() -> {
+            frame.getContentPane().removeAll();
+            frame.add(new MenuPanel(frame, sound, scoreManager));
+            frame.revalidate();
+            frame.repaint();
+        });
+    }
+
+    // ── Canvas del tablero ────────────────────────────────────────────────
 
     private class BoardCanvas extends JPanel {
 
@@ -108,11 +112,10 @@ public class GamePanel extends JPanel {
             int   rows  = Constants.BOARD_ROWS;
             Board board = state.getBoard();
 
-            // ── Fondo del tema ────────────────────────────────────────────
+            // ── Fondo ─────────────────────────────────────────────────────
             BufferedImage bg = ThemeManager.getInstance().getBackground(theme);
             if (bg != null) {
                 g2.drawImage(bg, 0, 0, getWidth(), getHeight(), null);
-                // Capa semitransparente para que la cuadrícula se vea
                 g2.setColor(new Color(0, 0, 0, 100));
                 g2.fillRect(0, 0, getWidth(), getHeight());
             } else {
@@ -143,7 +146,7 @@ public class GamePanel extends JPanel {
             // ── Ghost piece ───────────────────────────────────────────────
             Tetromino current = state.getCurrentPiece();
             if (current != null && !state.isPaused()) {
-                int ghostY = board.ghostY(current);
+                int ghostY    = board.ghostY(current);
                 int[][] shape = current.getShape();
                 Color ghostColor = new Color(
                         theme.getPieceColor(current.getType()).getRed(),
@@ -188,21 +191,13 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // ── Helpers ───────────────────────────────────────────────────────
-
-        /** Dibuja una celda con efecto 3D retro (bisel). */
         private void drawCell(Graphics2D g2, int x, int y, int cs,
                               Color color, boolean bright) {
-            // Relleno
             g2.setColor(bright ? color : color.darker());
             g2.fillRect(x, y, cs, cs);
-
-            // Brillo superior-izquierdo
             g2.setColor(color.brighter());
             g2.fillRect(x, y, cs, 3);
             g2.fillRect(x, y, 3, cs);
-
-            // Sombra inferior-derecho
             g2.setColor(color.darker().darker());
             g2.fillRect(x, y + cs - 3, cs, 3);
             g2.fillRect(x + cs - 3, y, 3, cs);

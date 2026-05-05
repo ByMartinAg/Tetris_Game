@@ -98,13 +98,13 @@ public class GameOverPanel extends JPanel {
 
         // ── Botones ───────────────────────────────────────────────────────
         gbc.insets = new Insets(8, 60, 4, 60);
-        JButton retryBtn = retroButton("▶  REINTENTAR", C_NEON_C);
+        JButton retryBtn = retroButton("REINTENTAR", C_NEON_C);
         retryBtn.addActionListener(e -> retry());
         gbc.gridy = row++;
         add(retryBtn, gbc);
 
         gbc.insets = new Insets(4, 60, 8, 60);
-        JButton menuBtn = retroButton("⌂  MENÚ PRINCIPAL", new Color(180, 180, 50));
+        JButton menuBtn = retroButton("MENÚ PRINCIPAL", new Color(180, 180, 50));
         menuBtn.addActionListener(e -> goToMenu());
         gbc.gridy = row++;
         add(menuBtn, gbc);
@@ -120,7 +120,7 @@ public class GameOverPanel extends JPanel {
             }
         }
         String text = pos > 0
-                ? "★  POSICIÓN #" + pos + " EN EL RANKING"
+                ? " POSICIÓN #" + pos + " EN EL RANKING"
                 : "SIN ENTRADA EN EL RANKING";
         Color color = pos == 1 ? new Color(255, 200, 0)
                 : pos > 0 ? C_NEON_C

@@ -12,7 +12,7 @@ public class Main {
             SoundManager  sound  = new SoundManager();
             ScoreManager  scores = new ScoreManager();
 
-            JFrame frame = new JFrame("TETRIS — Java Edition");
+            JFrame frame = new JFrame("TETRIS");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(false);
             frame.add(new MenuPanel(frame, sound, scores));

@@ -115,10 +115,9 @@ public class Game {
 
         if (lines > 0) sound.playSound("line_clear.wav");
 
+        state.spawnNextPiece();
         if (state.isGameOver()) {
             handleGameOver();
-        } else {
-            state.spawnNextPiece();
         }
     }
 

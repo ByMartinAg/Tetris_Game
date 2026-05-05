@@ -44,6 +44,14 @@ public class InputHandler extends KeyAdapter {
             case KeyEvent.VK_DOWN  -> game.softDrop();
             case KeyEvent.VK_UP    -> game.rotate();
             case KeyEvent.VK_SPACE -> game.hardDrop();
+
+        }
+        switch (e.getKeyCode()){
+            case KeyEvent.VK_W -> game.rotate();
+            case KeyEvent.VK_A -> game.moveLeft();
+            case KeyEvent.VK_S -> game.softDrop();
+            case KeyEvent.VK_D -> game.moveRight();
+            case KeyEvent.VK_F -> game.hardDrop();
         }
     }
 }

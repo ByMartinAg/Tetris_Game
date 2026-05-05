@@ -30,10 +30,21 @@ public class SidebarPanel extends JPanel {
 
     private final GameState state;
 
-    public SidebarPanel(GameState state) {
+    private final Runnable onMenu;
+
+    public SidebarPanel(GameState state, Runnable onMenu) {
         this.state = state;
+        this.onMenu = onMenu;
         setPreferredSize(new Dimension(Constants.SIDEBAR_W, Constants.WINDOW_H));
         setBackground(C_BG);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getY() > getHeight() - 40) {
+                    onMenu.run();
+                }
+            }
+        });
     }
 
     @Override
@@ -103,6 +114,18 @@ public class SidebarPanel extends JPanel {
         if (state.isPaused()) {
             drawPausedOverlay(g2);
         }
+        // ── Botón menú ────────────────────────────────────────────────────
+        int btnY = getHeight() - 36;
+        g2.setColor(new Color(14, 14, 30));
+        g2.fillRect(pad, btnY, w - pad * 2, 28);
+        g2.setColor(C_BORDER);
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawRect(pad, btnY, w - pad * 2, 28);
+        g2.setFont(F_LABEL);
+        g2.setColor(new Color(200, 60, 60));
+        String btnTxt = "MENU PRINCIPAL";
+        FontMetrics fm = g2.getFontMetrics();
+        g2.drawString(btnTxt, (w - fm.stringWidth(btnTxt)) / 2, btnY + 18);
     }
 
     // ── Helpers de dibujo ─────────────────────────────────────────────────
@@ -201,4 +224,5 @@ public class SidebarPanel extends JPanel {
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(txt, (getWidth() - fm.stringWidth(txt)) / 2, getHeight() / 2);
     }
+
 }
