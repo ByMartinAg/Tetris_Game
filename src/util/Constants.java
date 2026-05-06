@@ -17,7 +17,7 @@ public final class Constants {
     public static final int WINDOW_H     = BOARD_H;                  // 600
 
     // --- Game loop ---
-    public static final int TARGET_FPS   = 60;
+    public static final int TARGET_FPS   = 144;
     public static final long FRAME_TIME  = 1_000_000_000L / TARGET_FPS; // nanosegundos
 
     // --- Niveles ---

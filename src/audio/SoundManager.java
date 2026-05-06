@@ -24,7 +24,8 @@ public class SoundManager {
 
     /** Pool de 4 hilos para efectos concurrentes (rotate + drop + line_clear a la vez). */
     private final ExecutorService sfxPool = Executors.newFixedThreadPool(4);
-
+    // pura estetica unicamente para bajar el vol de la musica del menu
+    private static final float MUSIC_VOLUME_FACTOR = 0.8f; // 20% más bajo
     // ── Música de fondo ───────────────────────────────────────────────────
 
     public synchronized void playBackgroundMusic(String fileName, boolean loop) {
@@ -36,7 +37,7 @@ public class SoundManager {
             AudioInputStream ais = AudioSystem.getAudioInputStream(f);
             bgClip = AudioSystem.getClip();
             bgClip.open(ais);
-            applyVolume(bgClip, volume);
+            applyVolume(bgClip, volume * MUSIC_VOLUME_FACTOR);
             if (loop) bgClip.loop(Clip.LOOP_CONTINUOUSLY);
             else       bgClip.start();
         } catch (Exception e) {
@@ -56,6 +57,11 @@ public class SoundManager {
 
     /** Reproduce un efecto en un hilo separado para no bloquear el game loop. */
     public void playSound(String fileName) {
+        playSound(fileName, 200); // límite default: 800ms
+
+    }
+
+    public void playSound(String fileName, int maxMillis) {
         sfxPool.execute(() -> {
             try {
                 File f = new File(Constants.SOUNDS_DIR + fileName);
@@ -66,11 +72,12 @@ public class SoundManager {
                 clip.open(ais);
                 applyVolume(clip, volume);
                 clip.start();
-                // Cierra el clip cuando termine la reproducción
-                clip.addLineListener(e -> {
-                    if (e.getType() == LineEvent.Type.STOP) clip.close();
-                });
-            } catch (Exception ignored) { /* silencioso */ }
+
+                // Para después de maxMillis milisegundos
+                Thread.sleep(maxMillis);
+                clip.stop();
+                clip.close();
+            } catch (Exception ignored) {}
         });
     }
 
@@ -78,7 +85,7 @@ public class SoundManager {
 
     public synchronized void setVolume(float vol) {
         this.volume = Math.max(0f, Math.min(1f, vol));
-        if (bgClip != null && bgClip.isOpen()) applyVolume(bgClip, this.volume);
+        if (bgClip != null && bgClip.isOpen()) applyVolume(bgClip, this.volume * MUSIC_VOLUME_FACTOR);
     }
 
     public float getVolume() { return volume; }
